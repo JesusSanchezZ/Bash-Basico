@@ -1,0 +1,235 @@
+conexión ssh
+ssh "nombre host"@"host" -p "número del puerto"
+ej: ssh bandit0@bandit.labs.overthewire.org -p 2220
+    solicita password
+    exit   -- para salir del ssh
+
+ver la dirección ip 
+    hostname -I
+
+leer ficheros 
+    cat "nombre del fichero"
+        cat readme
+                 boJ9jbbUNNfktd78OOpsqOltutMc3MY1
+
+ls -l
+
+leer fichero con nombre "-"
+cat ./-
+cat /home/bandit1/-
+
+muestra todo el cotenido del directorio
+cat ./*
+cat /home/bandit1/-
+
+cat $(pwd)/-
+
+Ver fichero con nombre con espacios
+    cat "nombre del fichero con espacios"
+    cat spaces\ in\ this\ filename
+    cat sp*             empieza por sp
+    cat *ame            termina con ame
+    cat *this*          entre this
+
+Archivos ocultos
+    ls -a
+    find .     busca archivos
+    find . -type f     busca archivos
+    find . -type f -printf "%f\t%p\t%u\t%g\t%m\n" %f archivos %p ruta absoluta %u usuario propietario del archivo %g grupo %m modo-permisos a nivel numérico
+    find . -type f -printf "%f\t%p\t%u\t%g\t%m\n" | column -t ordena en columnas
+
+    cat ./inhere/.hidden
+
+    salida del comamndo como agrumento de otro
+    find . -name .hidden | xargs cat
+    find . -type f | xargs cat
+    find . -type f | xargs grep "leaving"
+
+Formato de permisos
+    rw- r-- r--        propietario grupos otros
+    cambiar permisos sobre otros
+        chmod o+rw "nombre archivo o carpeta"
+    cambia el usuario de un grupo
+        chgrp "usuario" "nombre archivo"
+        chgrp jesus file.txt
+        --- --- --- 
+        000 000 000
+        100 010 001  r-- -w- --x 421
+
+        chmod g-r,o-w
+        chattr +i -V "nombre archivo" no se puede eliminar ni escribir aùn por root
+            -V permite ver el atributo aplicado con lsattr
+        lsattr      lee los atributos especiales de los archivos
+
+
+        find . -name -file* | xargs file
+        time find . -name -file* | xargs file   muestra el tiempo de ejecución
+
+        find . -name -file07 
+        find . -name -file07 | xargs cat
+        cat $(find . -name -file07)
+
+Find con propiedades
+
+    find . -type f -readable
+                   -writable
+                   -executable
+
+    find . -type f -readable ! -executable -size 1033
+    find . -type f -readable ! -executable -size 1033c    tamaño en bytes
+    find . -type f -readable ! -executable -size 1033c | exargs cat
+    find . -type f -readable ! -executable -size 1033c | exargs cat | xargs     quita espacios en blanco
+
+    cat "archivo" | head -n 1     Muestra la primera o n lìneas
+    cat "archivo" | tail -n 1     Muestra la última o n líneas
+    cat "archivo" | awk 'NR==2'   Muestra la línea n
+
+    cat "archivo" | head -n 1 | sed 's/root/noroot/'    sustituimos root por noroot a la primer ocurrencia
+    cat "archivo" | head -n 1 | sed 's/root/noroot/g'   lo mismo pero para todas las ocurrencias
+
+    find . -type f -readable ! -executable -size 1033c | xargs cat | sed 's/^ *//'  quita los espacios en blanco
+    find . -type f -readable ! -executable -size 1033c | xargs cat | sed '/^\s*$/d'
+
+buscar archivos por usuario  grupo y tamaño
+    find / -user bandit7 -group bandit6 -size 33c 
+    find / -user bandit7 -group bandit6 -size 33c 2>/dev/null  manda los errores (con el numero 2) al archivo /de/null
+
+    firefox > /dev/null 2>&1        ejecuta la aplicaciòn y los mensajes de error no son mostrados >&1 es estandar in
+    firefox > /dev/null 2>&1 &      ejecuta la aplicacion en segundo plano
+    disown                          desenlaza el comand line de la aplicaciòn de segundo plano
+    find / -user bandit7 -group bandit6 -size 33c 2>/dev/null | xargs cat          lee los archivos que no arrogen errores y cumplan con los criterios
+    HKBPTKQnIay4Fw76bEy8PVxKEDQRKTzs
+
+    cat data.txt | wc -l               cuenta las lìneas del archivo
+    cat data.txt | wc -c               cuenta los caracteres del archivo
+    cat data.txt | grep "millionth"    muestra la lìnea en donde enccuentre la cadena
+    grep "millionth" data.txt          hace lo mismo que el anterior pero se ejecuta màs rápido
+    cat data.txt | awk '/millionth/'
+    awk '/millionth/' data.txt
+
+    awk '/millionth/' data.txt | awk '{print $1}'      muestra el primer argumento del resultado del primer awk
+    awk '/millionth/' data.txt | awk '{print $2}'      segundo argumento
+    awk '/millionth/' data.txt | awk 'NF{print $NF}'   muestra el último elemento
+
+    awk '/millionth/' data.txt | rev                   invierte la cadena
+    awk '/millionth/' data.txt | rev | awk '{print $1}' | rev
+
+    grep "millionth" data.txt -n          muestra el número de línea en el que se encuentra 
+    awk 'NR==37262' data.txt              muestra el contenido de la línea especificada
+
+    cat data.txt | sort                   ordena los resultados alfabeticamente
+    cat data.txt | sort | uniq -u         selecciona de cadenas ordenadas la que solo aparece una vez
+
+    strings data.txt                      muestra las cadenas de caracteres imprimibles
+    strings data.txt | grep "==="         muestra las cadenas que contienen ===
+    strings data.txt | grep "===" | tail -n 1        muestra la última línea
+    strings data.txt | grep "===" | tail -n 2        muestra las dos últimas líneas
+
+    touch bucle.sh              creamos un archivo
+    chmod +x !$                 agregamos el permiso x al argumento del comando anterior
+    ls !$
+    nano !$
+
+    seq 1 10                    bucle del 1 al 10
+
+bucle while en batch
+    cat /etc/passwd | while read line; donde
+        echo $line                                    se puede operar sobre la instruccion echo "Estamos aquí: $line"
+    done
+
+forma más común de hacerlo
+
+    while read line; do
+        echo $line
+    done < /etc/password            archivo a leer
+
+while con variable incrementada
+    contador=1                                    en batch se asginan los valores sin espacios
+
+    while read line; do
+        echo "Línea $contador: $line"
+        let contador+=1                           se pueden hacer operaciones sobre las variables
+    done < /etc/passwd 
+
+Bucle desde la línea de comandos
+    contador=1; strings data.txt | grep "===" | while read line; do echo "Línea $contador: $line"; let contador+=1; done
+
+    contador=1; strings data.txt | grep "===" | while read line; do echo "Línea $contador: $line"; let contador+=1; done | awk 'NR==4'   muestra la línea 4
+    contador=1; strings data.txt | grep "===" | while read line; do echo "Línea $contador: $line"; let contador+=1; done | awk 'NR==4' | awk 'NF{print $NF}' imprime el último argumento de la línea 4
+
+codificación de una cadena en base 64
+    echo "Hola que tal" | base64         codifica
+    echo "hola que tal" | base64 | base64 -d     codifica y descodifica
+
+    cat data.txt | base64 -d              decodifica un archivo en base64
+
+    cat data.txt | base64 -d | tr ' ' '\n'      tr al resultado de la conversion cambia los espacions en blanco por saltos de línea
+    cat data.txt | base64 -d | sed 's/ /\n/'    sustituye el primer espacio en blanco por un salto de linea
+    cat data.txt | base64 -d | sed 's/ /\n/g'   sustituye todos los espacios en blanco por saltos de línea
+
+    cat data.txt | tr '[G-ZA-Fg-za-f]' '[T-ZA-St-za-s]'   este comando rota los carateres trece veces empezandon en la letra G Trece posiciones es la Letra t
+    cat data.txt | tr '[G-ZA-Fg-za-f]' '[T-ZA-St-za-s]' | awk 'NF{print $NF}'
+
+    echo "hola que tal" | xxd            combierte la cadena a hexadecimal
+    echo "hola que tal" | xxd | xxd -r   revierte a la cadena original
+
+    echo "hola que tal" | xxd -ps        muestra solo la pate hexadecimal
+
+    xxd -r data.hex > data            
+    file data                     nos muestra el tipo de archivo
+    mv data data.gzip             renombramos el archivo a la extensi``on adecuada
+
+
+    7z data.gzip                  descomprimimos el archivo con 7zip
+    7z l data.gzip                lista el contenido de lo descomprimido
+    7z x data.gzip                extrae el contenido del archivo gzip
+
+
+Script para descomprimir un archivo que ha sido varias veces comprimido
+    iniciamos creando un archivo .sh
+        touch decompresor.sh
+    cambiamos los permisos para que se pueda ejecutar
+        chmod +x !$
+
+    argumentos de grep
+        7z l data.gzip | grep "Name"        muestra la línea que contiene "Name"
+        7z l data.gzip | grep "Name" -A 2   muestra el contenido de dos líneas hacia abajo
+        7z l data.gzip | grep "Name" -B 2   muestra el contenido de dos líneas hacia arriba
+        7z l data.gzip | grep "Name" -C 2   muestra el contendio de dos líneas hacia arriba y abajo
+
+        7z l data.gzip | grep "Name" -A 2 | tail -n 1       muestra la última línea del resultado
+        7z l data.gzip | grep "Name" -A 2 | tail -n 1 | awk 'FN{print $Fn}' muestra el último elemento de la última línea
+
+    script para descomprimir archivo multicomprimido
+
+        name_decompressed=$(7z l data.gzip | grep "Name" -A 2 | tail -n 1 | awk 'FN{prit $FN}')       almacena el nombre del archivo en el archivo comprimido
+        7z x data.gzip > /dev/null 2 >&1                                                              descomprime el archivo sin mandar la salida del comando a consola
+
+        while true; do
+            7z l $name_decompressed > /dev/null 2>&1                         lista el contenido del archivo descomprimido
+
+            if [ "$(echo $?)" == "0" ]; then                                                                              si el comando anterior terminó con 0 entonces
+                decompressed_next =$(7z l $name_decompressed | grep "Name" -A 2 | tail -n 1 | awk 'NF{print $NF}')        lee el contenido del archivo contenido en el comprimido
+                7z x $name_decompressed > /dev/null 2>&1 && name_decompressed=$decompressed_next                          descomrime el archivo  y si termina con 0 actualiza la variable name_decompressed con el núevo archivo descomprimido
+            else
+                cat $name_decompressed; rm data* 2>/dev/null                                                              muestra el contenido del último archivo, y después elimina los archivos descomprimidos
+                exit 1                                                                                                    termina el proceso con código de error 1
+        done              
+
+
+
+
+
+
+
+
+
+
+    https://www.youtube.com/watch?v=RUorAzaDftg minuto 1:39:20
+
+
+
+
+    
+
+
