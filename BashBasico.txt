@@ -202,7 +202,7 @@ Script para descomprimir un archivo que ha sido varias veces comprimido
 
     script para descomprimir archivo multicomprimido
 
-        name_decompressed=$(7z l data.gzip | grep "Name" -A 2 | tail -n 1 | awk 'FN{prit $FN}')       almacena el nombre del archivo en el archivo comprimido
+        name_decompressed=$(7z l data.gzip | grep "Name" -A 2 | tail -n 1 | awk 'NF{prit $NF}')       almacena el nombre del archivo en el archivo comprimido
         7z x data.gzip > /dev/null 2 >&1                                                              descomprime el archivo sin mandar la salida del comando a consola
 
         while true; do
